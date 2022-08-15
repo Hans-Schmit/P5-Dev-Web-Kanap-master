@@ -32,17 +32,11 @@ let productId = url.searchParams.get("id")
 const insertIntoHtml = (product) => {
     let colorsHtml = ""
     document.title = product.name
-    document.getElementsByClassName("item__img")[0].innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}">`
-    document.getElementById("title").innerText = product.name
-    document.getElementById("price").innerText = product.price
-    document.getElementById("description").innerText = product.description
-
-    for (let color of product.colors) {
-        colorsHtml += `<option value="${color}">${color}</option>`
-    }
-    document.getElementById("colors").innerHTML += colorsHtml
-
-    //document.getElementById("colors").insertAdjacentHTML('beforeend', product.colors.map(color => `<option value="${color}">${color}</option>`).join(' '))
+    document.querySelector(".item__img").innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}">`
+    document.querySelector("#title").innerText = product.name
+    document.querySelector("#price").innerText = product.price
+    document.querySelector("#description").innerText = product.description
+    document.querySelector("#colors").insertAdjacentHTML('beforeend', product.colors.map(color => `<option value="${color}">${color}</option>`).join(''))
 
     startListener()
 }
@@ -51,15 +45,15 @@ const insertIntoHtml = (product) => {
  * Set listener to handle add product action
  */
 const startListener = () => {
-    document.getElementById("addToCart").addEventListener("click", addProduct)
+    document.querySelector("#addToCart").addEventListener("click", addProduct)
 }
 
 /**
  * add the product (id, color and quantity) to the cart
  */
 const addProduct = () => {
-    let color = document.getElementById("colors").value
-    let quantity = Number(document.getElementById("quantity").value)
+    let color = document.querySelector("#colors").value
+    let quantity = Number(document.querySelector("#quantity").value)
     if (checkColor(color) && checkQuantity(quantity)) {
         let addedProduct = new Product(productId, color, quantity)
         console.log(addedProduct)

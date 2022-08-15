@@ -8,7 +8,7 @@ const start = () => {
             productsBrowse(data)
         })
         .catch(err => {
-            document.getElementById("items").innerText = `An error has occured : ${err}`
+            document.querySelector("#items").innerText = `An error has occured : ${err}`
         })
 }
 
@@ -18,19 +18,16 @@ const start = () => {
  * @param {Array} - Api response (Array of object)
  */
 const productsBrowse = (products) => {
-    let htmlContent = ""
 
-    for (let product of products) {
-        htmlContent += `<a href="./product.html?id=${product._id}">
-                <article>
-                    <img src="${product.imageUrl}" alt="${product.altTxt}">
-                    <h3 class="productName">${product.name}</h3>
-                    <p class="productDescription">${product.description}</p>
-                </article>
-            </a>`
-    }
-    //add the code for all products in the DOM
-    document.getElementById("items").innerHTML = htmlContent
+    document.querySelector("#items").insertAdjacentHTML("afterbegin", products.map(product => {
+        return `<a href="./product.html?id=${product._id}">
+            <article>
+                <img src="${product.imageUrl}" alt="${product.altTxt}">
+                <h3 class="productName">${product.name}</h3>
+                <p class="productDescription">${product.description}</p>
+            </article>
+        </a>`
+    }).join(""))
 }
 
 
