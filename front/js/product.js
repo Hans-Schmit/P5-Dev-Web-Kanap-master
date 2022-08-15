@@ -30,7 +30,6 @@ let productId = url.searchParams.get("id")
  * insert the product datas in the DOM
  */
 const insertIntoHtml = (product) => {
-    let colorsHtml = ""
     document.title = product.name
     document.querySelector(".item__img").innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}">`
     document.querySelector("#title").innerText = product.name
@@ -49,14 +48,19 @@ const startListener = () => {
 }
 
 /**
- * add the product (id, color and quantity) to the cart
+ * creat and add the product (id, color and quantity) to the cart
  */
 const addProduct = () => {
     let color = document.querySelector("#colors").value
     let quantity = Number(document.querySelector("#quantity").value)
     if (checkColor(color) && checkQuantity(quantity)) {
         let addedProduct = new Product(productId, color, quantity)
-        console.log(addedProduct)
+        if (checkIfCartExist()) {
+            checkCartForProduct(addedProduct)
+        }
+        else {
+            addProductToCart(addedProduct)
+        }
     }
 }
 /**
@@ -72,6 +76,49 @@ const checkColor = (color) => Boolean(color != "")
  * @returns 
  */
 const checkQuantity = (quantity) => Boolean(1 <= quantity && quantity <= 100)
+
+/**
+ * checkIfCartExist - check if cart exist in local storage and if not creat it
+ */
+const checkIfCartExist = () => {
+    let cartExist = true
+    if (localStorage.cart == null) {
+        localStorage.cart = JSON.stringify([])
+        cartExist = false
+    }
+    return cartExist
+}
+
+/**
+ * checkCartForProduct - check if the product is already in localStorage.cart to increase the amount, if not call addProductToCart
+ * @param {*} product 
+ */
+const checkCartForProduct = (product) => {
+    let productNotAdded = true
+
+    let tempCheckCart = JSON.parse(localStorage.cart)
+    tempCheckCart.forEach(ref => {
+        if (product.id == ref.id && product.color == ref.color) {
+            ref.quantity += product.quantity
+            productNotAdded = false
+        }
+    })
+    localStorage.cart = JSON.stringify(tempCheckCart)
+
+    if (productNotAdded) {
+        addProductToCart(product)
+    }
+}
+
+/**
+ * addProductToCart - add the product at the end of the cart
+ * @param {*} product 
+ */
+const addProductToCart = (product) => {
+    let tempAddCart = JSON.parse(localStorage.cart)
+    tempAddCart.push(product)
+    localStorage.cart = JSON.stringify(tempAddCart)
+}
 
 // Wait for DOM release
 window.addEventListener('load', start())
