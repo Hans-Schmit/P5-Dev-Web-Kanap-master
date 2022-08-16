@@ -1,0 +1,64 @@
+const start = async () => {
+    let cart = JSON.parse(localStorage.cart)
+    try {
+        let datas = await loopThroughCart(cart)
+        console.log(datas)
+        addToPage(datas)
+    }
+    catch (err) {
+        console.log(err)
+    }
+
+}
+
+const loopThroughCart = (cart) => {
+    let htmlCode = ""
+    let totalArticles = 0
+    let totalPrice = 0
+    cart.forEach(article => {
+        fetch(`http://localhost:3000/api/products/${article.id}`)
+            .then(res => res.json())
+            .then(product => {
+                htmlCode += String(addToHtml(article, product))
+                totalArticles += Number(article.quantity)
+                totalPrice += Number(product.price * article.quantity)
+            })
+            .catch(err => {
+                console.log(`An error has occured : ${err}`)
+            })
+    })
+    return [htmlCode, totalArticles, totalPrice]
+}
+
+const addToPage = ([htmlCode, totalArticles, totalPrice]) => {
+    document.querySelector("#cart__items").innerHTML = htmlCode
+    document.querySelector("#totalQuantity").innertext = totalArticles
+    document.querySelector("#totalPrice").innertext = totalPrice
+}
+
+const addToHtml = (article, product) => {
+    return `<article class="cart__item" data-id="${product._id}" data-color="${article.color}">
+    <div class="cart__item__img">
+      <img src="../images/${product.imageUrl}" alt="${product.altTxt}">
+    </div>
+    <div class="cart__item__content">
+      <div class="cart__item__content__description">
+        <h2>${product.name}</h2>
+        <p>${article.color}</p>
+        <p>${product.price} €</p>
+      </div>
+      <div class="cart__item__content__settings">
+        <div class="cart__item__content__settings__quantity">
+          <p>Qté : ${article.quantity}</p>
+          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${article.quantity}">
+        </div>
+        <div class="cart__item__content__settings__delete">
+          <p class="deleteItem">Supprimer</p>
+        </div>
+      </div>
+    </div>
+  </article>`
+}
+
+// Wait for DOM release
+window.addEventListener('load', start())
