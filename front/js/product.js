@@ -53,13 +53,15 @@ const startListener = () => {
 const addProduct = () => {
     let color = document.querySelector("#colors").value
     let quantity = Number(document.querySelector("#quantity").value)
-    if (checkColor(color) && checkQuantity(quantity)) {
-        let addedProduct = new Product(productId, color, quantity)
-        if (checkIfCartExist()) {
-            checkCartForProduct(addedProduct)
-        }
-        else {
-            addProductToCart(addedProduct)
+    if (checkColor(color)) {
+        if (checkQuantity(quantity)) {
+            let addedProduct = new Product(productId, color, quantity)
+            if (checkIfCartExist()) {
+                checkCartForProduct(addedProduct)
+            }
+            else {
+                addProductToCart(addedProduct)
+            }
         }
     }
 }
@@ -68,14 +70,34 @@ const addProduct = () => {
  * @param {*} color 
  * @returns 
  */
-const checkColor = (color) => Boolean(color != "")
+const checkColor = (color) => {
+    let response = ""
+    if (color != "") {
+        response = true
+    }
+    else {
+        alert("Veuillez selectionner une couleur")
+        response = false
+    }
+    return response
+}
 
 /**
  * checkQuantity - check if the quantity is a number between 1 and 100 included
  * @param {*} quantity 
  * @returns 
  */
-const checkQuantity = (quantity) => Boolean(1 <= quantity && quantity <= 100)
+const checkQuantity = (quantity) => {
+    let response = ""
+    if (Number.isInteger(quantity) && 1 <= quantity && quantity <= 100) {
+        response = true
+    }
+    else {
+        alert("Veuillez selectionner une quantité (nombre entier) comprise entre 1 et 100")
+        response = false
+    }
+    return response
+}
 
 /**
  * checkIfCartExist - check if cart exist in local storage and if not creat it
@@ -99,7 +121,13 @@ const checkCartForProduct = (product) => {
     let tempCheckCart = JSON.parse(localStorage.cart)
     tempCheckCart.forEach(ref => {
         if (product.id == ref.id && product.color == ref.color) {
-            ref.quantity += product.quantity
+            if ((ref.quantity + product.quantity) <= 100) {
+                ref.quantity += product.quantity
+            }
+            else {
+                alert("Quantité maximum atteinte pour cet article (100 exemplaires)")
+                ref.quantity = 100
+            }
             productNotAdded = false
         }
     })
