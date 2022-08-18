@@ -123,6 +123,12 @@ const checkCartForProduct = (product) => {
         if (product.id == ref.id && product.color == ref.color) {
             if ((ref.quantity + product.quantity) <= 100) {
                 ref.quantity += product.quantity
+                if (product.quantity == 1) {
+                    alert(`1 Kanap ${product.color} a été ajouté au panier`)
+                }
+                else {
+                    alert(`${product.quantity} Kanaps ${product.color} ont été ajoutés au panier`)
+                }
             }
             else {
                 alert("Quantité maximum atteinte pour cet article (100 exemplaires)")
@@ -131,10 +137,12 @@ const checkCartForProduct = (product) => {
             productNotAdded = false
         }
     })
-    localStorage.cart = JSON.stringify(tempCheckCart)
 
     if (productNotAdded) {
         addProductToCart(product)
+    }
+    else {
+        localStorage.cart = JSON.stringify(tempCheckCart)
     }
 }
 
@@ -146,6 +154,12 @@ const addProductToCart = (product) => {
     let tempAddCart = JSON.parse(localStorage.cart)
     tempAddCart.push(product)
     localStorage.cart = JSON.stringify(tempAddCart)
+    if (product.quantity == 1) {
+        alert(`1 Kanap ${product.color} a été ajouté au panier`)
+    }
+    else {
+        alert(`${product.quantity} Kanaps ${product.color} ont été ajoutés au panier`)
+    }
 }
 
 // Wait for DOM release
