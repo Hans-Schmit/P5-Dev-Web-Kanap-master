@@ -79,25 +79,70 @@ const addToHtml = (article, product) => {
   </article>`
 }
 
-
+/**
+ * startListener - add the event listener on the page
+ */
 const startListener = () => {
-  let quantityList = Array.from(document.querySelectorAll(".itemQuantity"))
-  let deleteList = Array.from(document.querySelectorAll(".deleteItem"))
+  let quantityList = document.querySelectorAll(".itemQuantity")
+  let deleteList = document.querySelectorAll(".deleteItem")
   quantityList.forEach(selector => {
-    selector.addEventListener("onChange", newQuantity())
+    selector.addEventListener("change", () => { newQuantity(selector) })
   })
   deleteList.forEach(selector => {
-    selector.addEventListener("click", deletItem())
+    selector.addEventListener("click", () => { deletItem(selector) })
   })
 
 }
 
-const newQuantity = () => {
+/**
+ * newQuantity - check if the quantity is valid then modifiy the cart and the page
+ * @param {*} theElement 
+ * @param {*} prodId 
+ * @param {*} prodColor 
+ */
+const newQuantity = (theElement) => {
+  let prodId = theElement.closest(".cart__item").getAttribute("data-id")
+  let prodColor = theElement.closest(".cart__item").getAttribute("data-color")
+  let newQuantity = Number(theElement.value)
+  oldQuantity = Number(theElement.previousElementSibling.innerText.replace("Qté : ", ""))
+
+  if (Number.isInteger(newQuantity) && 1 <= newQuantity && newQuantity <= 100 && newQuantity != oldQuantity) {
+    modifiedQuantity = oldQuantity - newQuantity
+    productPrice = Number(theElement.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.nextElementSibling.innerText.replace(" €", ""))
+
+    let cart = JSON.parse(localStorage.cart)
+    cart[cart.findIndex(checking = (product) => { return Boolean(product.id == prodId && product.color == prodColor) })].quantity = newQuantity
+    localStorage.cart = JSON.stringify(cart)
+
+    theElement.previousElementSibling.innerText = `Qté : ${newQuantity}`
+    document.querySelector("#totalQuantity").innerText -= modifiedQuantity
+    document.querySelector("#totalPrice").innerText -= (modifiedQuantity * productPrice)
+  }
+  else {
+    alert("Veuillez selectionner une quantité (nombre entier) comprise entre 1 et 100 et différente de la quantité préexistante")
+  }
 
 }
 
-const deletItem = () => {
-
+/**
+ * deletItem - remove the element from the page and the local storage and adjust total quantity and total price
+ * @param {*} theElement 
+ * @param {*} prodId 
+ * @param {*} prodColor 
+ */
+const deletItem = (theElement) => {
+  let prodId = theElement.closest(".cart__item").getAttribute("data-id")
+  let prodColor = theElement.closest(".cart__item").getAttribute("data-color")
+  let cart = JSON.parse(localStorage.cart)
+  let deletedQuantity = theElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.getAttribute("value")
+  let deletedPrice = Number(theElement.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.nextElementSibling.innerText.replace(" €", ""))
+  cart.splice(cart.findIndex(checking = (product) => { return Boolean(product.id == prodId && product.color == prodColor) }), 1)
+  console.log(cart)
+  localStorage.cart = JSON.stringify(cart)
+  theElement.closest(".cart__item").remove()
+  document.querySelector("#totalQuantity").innerText -= deletedQuantity
+  document.querySelector("#totalPrice").innerText -= (deletedQuantity * deletedPrice)
 }
+
 // Wait for DOM release
 window.addEventListener('load', start())
