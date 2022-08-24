@@ -85,20 +85,22 @@ const addToHtml = (article, product) => {
 const startListener = () => {
   let quantityList = document.querySelectorAll(".itemQuantity")
   let deleteList = document.querySelectorAll(".deleteItem")
+  let inputList = document.querySelectorAll(".cart__order__form__question input")
   quantityList.forEach(selector => {
     selector.addEventListener("change", () => { newQuantity(selector) })
   })
   deleteList.forEach(selector => {
     selector.addEventListener("click", () => { deletItem(selector) })
   })
-
+  inputList.forEach(selector => {
+    selector.addEventListener("change", () => { testInput(selector) })
+  })
+  document.querySelector("#order").addEventListener("click", () => { checkAndSubmit(inputList) })
 }
 
 /**
  * newQuantity - check if the quantity is valid then modifiy the cart and the page
- * @param {*} theElement 
- * @param {*} prodId 
- * @param {*} prodColor 
+ * @param {*} theElement
  */
 const newQuantity = (theElement) => {
   let prodId = theElement.closest(".cart__item").getAttribute("data-id")
@@ -108,6 +110,7 @@ const newQuantity = (theElement) => {
 
   if (Number.isInteger(newQuantity) && 1 <= newQuantity && newQuantity <= 100 && newQuantity != oldQuantity) {
     modifiedQuantity = oldQuantity - newQuantity
+    //modifier avec data
     productPrice = Number(theElement.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.nextElementSibling.innerText.replace(" €", ""))
 
     let cart = JSON.parse(localStorage.cart)
@@ -127,21 +130,91 @@ const newQuantity = (theElement) => {
 /**
  * deletItem - remove the element from the page and the local storage and adjust total quantity and total price
  * @param {*} theElement 
- * @param {*} prodId 
- * @param {*} prodColor 
  */
 const deletItem = (theElement) => {
   let prodId = theElement.closest(".cart__item").getAttribute("data-id")
   let prodColor = theElement.closest(".cart__item").getAttribute("data-color")
   let cart = JSON.parse(localStorage.cart)
+  //passer par le cart
   let deletedQuantity = theElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.getAttribute("value")
+  //modifier avec data
   let deletedPrice = Number(theElement.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.nextElementSibling.innerText.replace(" €", ""))
   cart.splice(cart.findIndex(checking = (product) => { return Boolean(product.id == prodId && product.color == prodColor) }), 1)
-  console.log(cart)
   localStorage.cart = JSON.stringify(cart)
   theElement.closest(".cart__item").remove()
   document.querySelector("#totalQuantity").innerText -= deletedQuantity
   document.querySelector("#totalPrice").innerText -= (deletedQuantity * deletedPrice)
+}
+
+const testInput = (theElement) => {
+  let ref = theElement.getAttribute("id")
+  let input = theElement.value
+  let regexChoice = ""
+
+  switch (ref) {
+    case "firstName":
+    case "lastName":
+    case "city":
+      regexChoice = /^[A-Za-z]+$/
+      // regexChoice = /^(([A-Za-z]+[\-\']?)*([A-Za-z]+)?\s)+([A-Za-z]+[\-\']?)*([A-Za-z]+)?$/
+      // regexChoice = /^[A-Z\u00C0-\u00D6\u00D8-\u00DE][\s\'\-]?([a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[\s\'\-]?)*[a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\]+$/
+      break
+    case "address":
+      regexChoice = /^[a-zA-Z0-9\s,.'-]{3,}$/
+      // regexChoice = /^[0-9]*[A-Z\u00C0-\u00D6\u00D8-\u00DE][\\s\'\-]?([a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[\\s\'\-]?)*[a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\]+$/
+      break
+    case "email":
+      regexChoice = /^[a-zA-Z0-9\.%\+-_]{1,64}@([a-zA-Z0-9-_]{1,63}\.){1,125}[a-zA-Z]{2,63}$/
+      break
+    default:
+      console.log("error on testInput element")
+  }
+
+  const theRegex = regexChoice
+  console.log(theRegex)
+
+  if (theRegex.test(input)) {
+    theElement.nextElementSibling.innerText = "Ok"
+    return true
+  }
+  else {
+    theElement.nextElementSibling.innerText = "Incorrect"
+    return false
+  }
+}
+
+const checkAndSubmit = (inputList) => {
+  let checkValue = true
+  let contact = {}
+
+  inputList.forEach(input => {
+    if (testInput(input)) {
+      let attributName = input.getAttribute("id")
+      contact[attributName] = input.value
+    }
+    else {
+      checkValue = false
+    }
+  })
+
+  if (checkValue) {
+    let cart = JSON.parse(localStorage.cart)
+    let products = []
+    cart.forEach(product => {
+      products.push(product.id)
+    })
+    console.log(contact)
+    console.log(products)
+    // submitDatas(contact, products)
+    alert("ça marche !")
+  }
+  else {
+    alert("error some inputs are incorrect")
+  }
+}
+
+const submitDatas = (contact, products) => {
+
 }
 
 // Wait for DOM release
