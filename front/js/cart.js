@@ -5,7 +5,7 @@ let allProducts = []
  * start - get the products then call the function to add the elements to the page
  */
 const start = async () => {
-  if (checkIfCartExist() == true && getCart() != []) {
+  if (checkIfCartExist() == true && getCart().length > 0) {
     cart = getCart()
     try {
       allProducts = await fetch("http://localhost:3000/api/products/")
@@ -279,7 +279,11 @@ const checkAndSubmit = (inputList) => {
   }
 }
 
-
+/**
+ * submitDatas - send contact and products to the api then call functions deletCart and redirectToConfirmation
+ * @param {*} contact 
+ * @param {*} products 
+ */
 const submitDatas = (contact, products) => {
   let order = { contact, products }
   fetch("http://localhost:3000/api/products/order", {
@@ -292,7 +296,7 @@ const submitDatas = (contact, products) => {
   })
     .then(res => res.json())
     .then(response => {
-      // deletCart()
+      deletCart()
       redirectToConfirmation(response.orderId)
     })
     .catch(err => {
@@ -302,6 +306,10 @@ const submitDatas = (contact, products) => {
 
 }
 
+/**
+ * redirectToConfirmation - redirect to the page confirmation.html with orderId included as a parameter
+ * @param {*} orderId 
+ */
 const redirectToConfirmation = (orderId) => {
   window.location.href = `./confirmation.html?orderId=${orderId}`
 }
