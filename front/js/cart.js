@@ -1,37 +1,84 @@
+let cart = []
+let allProducts = []
+
 /**
- * start - get the cart and the products then call the function to add the elements to the page
+ * start - get the products then call the function to add the elements to the page
  */
 const start = async () => {
-  let cart = JSON.parse(localStorage.cart)
-  try {
-    let products = await fetch("http://localhost:3000/api/products/")
-      .then(res => res.json())
-      .then(data => {
-        return (data)
-      })
-      .catch(err => {
-        console.error(`An error has occured : ${err}`)
-      })
-    let datas = loopThroughCart(cart, products)
-    addToPage(datas)
-    startListener()
+  if (checkIfCartExist() == true && getCart() != []) {
+    cart = getCart()
+    try {
+      allProducts = await fetch("http://localhost:3000/api/products/")
+        .then(res => res.json())
+        .then(data => {
+          return (data)
+        })
+        .catch(err => {
+          console.error(`An error has occured : ${err}`)
+        })
+      let datas = loopThroughCart()
+      addToPage(datas)
+      startListener()
+    }
+    catch (err) {
+      console.log(err)
+    }
   }
-  catch (err) {
-    console.log(err)
+  else {
+    alert("Panier vide !")
   }
 
 }
 
 /**
- * loopThroughCart - go through the cart and  for each products call addToHtm, increase the total quantity and the total price
- * @param {*} cart 
- * @param {*} products 
+ * checkIfCartExist - check if cart exist in local storage and if not creat it
+ */
+const checkIfCartExist = () => {
+  let cartExist = true
+  if (localStorage.cart == null) {
+    updateCart([])
+    cartExist = false
+  }
+  return cartExist
+}
+
+/**
+ * getCart - return the cart from the localStorage
  * @returns 
  */
-const loopThroughCart = (cart, products) => {
+const getCart = () => JSON.parse(localStorage.cart)
+
+/**
+ * updateCart - update the localStorage cart with a new cart
+ * @param {*} cart 
+ */
+const updateCart = (cart) => {
+  localStorage.cart = JSON.stringify(cart)
+}
+
+/**
+ * getQuantity - return the quantity of a product in the cart
+ * @param {*} prodId 
+ * @param {*} prodColor 
+ * @returns 
+ */
+const getQuantity = (prodId, prodColor) => cart.find((aProduct) => aProduct.id == prodId && aProduct.color == prodColor).quantity
+
+/**
+ * getPrice - return the price of a product
+ * @param {*} prodId 
+ * @returns 
+ */
+const getPrice = (prodId) => allProducts.find((aProduct) => aProduct._id == prodId).price
+
+/**
+ * loopThroughCart - go through the cart and  for each products call addToHtm, increase the total quantity and the total price
+ * @returns 
+ */
+const loopThroughCart = () => {
   let datas = { htmlCode: "", totalArticles: 0, totalPrice: 0 }
   cart.forEach(article => {
-    let product = products.find((aProduct) => aProduct._id == article.id)
+    let product = allProducts.find((aProduct) => aProduct._id == article.id)
     datas.htmlCode += addToHtml(article, product)
     datas.totalArticles += Number(article.quantity)
     datas.totalPrice += Number(product.price * article.quantity)
@@ -95,7 +142,10 @@ const startListener = () => {
   inputList.forEach(selector => {
     selector.addEventListener("change", () => { testInput(selector) })
   })
-  document.querySelector("#order").addEventListener("click", () => { checkAndSubmit(inputList) })
+  document.querySelector("#order").addEventListener("click", (event) => {
+    event.preventDefault()
+    checkAndSubmit(inputList)
+  })
 }
 
 /**
@@ -106,16 +156,15 @@ const newQuantity = (theElement) => {
   let prodId = theElement.closest(".cart__item").getAttribute("data-id")
   let prodColor = theElement.closest(".cart__item").getAttribute("data-color")
   let newQuantity = Number(theElement.value)
-  oldQuantity = Number(theElement.previousElementSibling.innerText.replace("Qté : ", ""))
+  oldQuantity = getQuantity(prodId, prodColor)
 
   if (Number.isInteger(newQuantity) && 1 <= newQuantity && newQuantity <= 100 && newQuantity != oldQuantity) {
-    modifiedQuantity = oldQuantity - newQuantity
-    //modifier avec data
-    productPrice = Number(theElement.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.nextElementSibling.innerText.replace(" €", ""))
+    let modifiedQuantity = oldQuantity - newQuantity
+    let productPrice = getPrice(prodId)
 
-    let cart = JSON.parse(localStorage.cart)
+    cart = getCart()
     cart[cart.findIndex(checking = (product) => { return Boolean(product.id == prodId && product.color == prodColor) })].quantity = newQuantity
-    localStorage.cart = JSON.stringify(cart)
+    updateCart(cart)
 
     theElement.previousElementSibling.innerText = `Qté : ${newQuantity}`
     document.querySelector("#totalQuantity").innerText -= modifiedQuantity
@@ -134,13 +183,11 @@ const newQuantity = (theElement) => {
 const deletItem = (theElement) => {
   let prodId = theElement.closest(".cart__item").getAttribute("data-id")
   let prodColor = theElement.closest(".cart__item").getAttribute("data-color")
-  let cart = JSON.parse(localStorage.cart)
-  //passer par le cart
-  let deletedQuantity = theElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.getAttribute("value")
-  //modifier avec data
-  let deletedPrice = Number(theElement.parentElement.parentElement.previousElementSibling.firstElementChild.nextElementSibling.nextElementSibling.innerText.replace(" €", ""))
+  cart = getCart()
+  let deletedQuantity = getQuantity(prodId, prodColor)
+  let deletedPrice = getPrice(prodId)
   cart.splice(cart.findIndex(checking = (product) => { return Boolean(product.id == prodId && product.color == prodColor) }), 1)
-  localStorage.cart = JSON.stringify(cart)
+  updateCart(cart)
   theElement.closest(".cart__item").remove()
   document.querySelector("#totalQuantity").innerText -= deletedQuantity
   document.querySelector("#totalPrice").innerText -= (deletedQuantity * deletedPrice)
@@ -155,7 +202,7 @@ const testInput = (theElement) => {
     case "firstName":
     case "lastName":
     case "city":
-      regexChoice = /^[A-Za-z]+$/
+      regexChoice = /^[A-Za-z\s'-]+$/
       // regexChoice = /^(([A-Za-z]+[\-\']?)*([A-Za-z]+)?\s)+([A-Za-z]+[\-\']?)*([A-Za-z]+)?$/
       // regexChoice = /^[A-Z\u00C0-\u00D6\u00D8-\u00DE][\s\'\-]?([a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[\s\'\-]?)*[a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\]+$/
       break
@@ -186,6 +233,7 @@ const testInput = (theElement) => {
 const checkAndSubmit = (inputList) => {
   let checkValue = true
   let contact = {}
+  let errorsCount = 0
 
   inputList.forEach(input => {
     if (testInput(input)) {
@@ -194,11 +242,12 @@ const checkAndSubmit = (inputList) => {
     }
     else {
       checkValue = false
+      errorsCount += 1
     }
   })
 
   if (checkValue) {
-    let cart = JSON.parse(localStorage.cart)
+    cart = getCart()
     let products = []
     cart.forEach(product => {
       products.push(product.id)
@@ -209,7 +258,12 @@ const checkAndSubmit = (inputList) => {
     alert("ça marche !")
   }
   else {
-    alert("error some inputs are incorrect")
+    if (errorsCount == 1) {
+      alert("Error an input is incorrect")
+    }
+    else {
+      alert(`Error ${errorsCount} inputs are incorrect`)
+    }
   }
 }
 
