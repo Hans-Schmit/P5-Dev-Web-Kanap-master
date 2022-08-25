@@ -57,6 +57,13 @@ const updateCart = (cart) => {
 }
 
 /**
+ * deletCart - remove the "cart" item from localStorage
+ */
+const deletCart = () => {
+  localStorage.removeItem("cart")
+}
+
+/**
  * getQuantity - return the quantity of a product in the cart
  * @param {*} prodId 
  * @param {*} prodColor 
@@ -193,6 +200,11 @@ const deletItem = (theElement) => {
   document.querySelector("#totalPrice").innerText -= (deletedQuantity * deletedPrice)
 }
 
+/**
+ * testInput - test if the input of the element is valid (according to the regex associated to the element) and indicate the result to the user
+ * @param {*} theElement 
+ * @returns 
+ */
 const testInput = (theElement) => {
   let ref = theElement.getAttribute("id")
   let input = theElement.value
@@ -218,7 +230,6 @@ const testInput = (theElement) => {
   }
 
   const theRegex = regexChoice
-  console.log(theRegex)
 
   if (theRegex.test(input)) {
     theElement.nextElementSibling.innerText = "Ok"
@@ -230,6 +241,10 @@ const testInput = (theElement) => {
   }
 }
 
+/**
+ * checkAndSubmit - check the validity of the form then creat the datas to send and call submitDatas or indicates the number of errors
+ * @param {*} inputList 
+ */
 const checkAndSubmit = (inputList) => {
   let checkValue = true
   let contact = {}
@@ -252,10 +267,7 @@ const checkAndSubmit = (inputList) => {
     cart.forEach(product => {
       products.push(product.id)
     })
-    console.log(contact)
-    console.log(products)
-    // submitDatas(contact, products)
-    alert("ça marche !")
+    submitDatas(contact, products)
   }
   else {
     if (errorsCount == 1) {
@@ -267,8 +279,31 @@ const checkAndSubmit = (inputList) => {
   }
 }
 
-const submitDatas = (contact, products) => {
 
+const submitDatas = (contact, products) => {
+  let order = { contact, products }
+  fetch("http://localhost:3000/api/products/order", {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(order)
+  })
+    .then(res => res.json())
+    .then(response => {
+      // deletCart()
+      redirectToConfirmation(response.orderId)
+    })
+    .catch(err => {
+      console.log(`An error has occured : ${err}`)
+    })
+
+
+}
+
+const redirectToConfirmation = (orderId) => {
+  window.location.href = `./confirmation.html?orderId=${orderId}`
 }
 
 // Wait for DOM release
