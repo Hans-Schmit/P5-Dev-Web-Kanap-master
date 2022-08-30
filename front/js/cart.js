@@ -214,9 +214,9 @@ const testInput = (theElement) => {
     case "firstName":
     case "lastName":
     case "city":
-      regexChoice = /^[A-Za-z\s'-]+$/
+      regexChoice = /^[A-Za-z '-]+$/
       // regexChoice = /^(([A-Za-z]+[\-\']?)*([A-Za-z]+)?\s)+([A-Za-z]+[\-\']?)*([A-Za-z]+)?$/
-      // regexChoice = /^[A-Z\u00C0-\u00D6\u00D8-\u00DE][\s\'\-]?([a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[\s\'\-]?)*[a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\]+$/
+      // regexChoice = /^[A-Z\u00C0-\u00D6\u00D8-\u00DE][ '-]?([a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[ '-]?)*[a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\]+$/
       break
     case "address":
       regexChoice = /^[a-zA-Z0-9\s,.'-]{3,}$/
@@ -267,7 +267,8 @@ const checkAndSubmit = (inputList) => {
     cart.forEach(product => {
       products.push(product.id)
     })
-    submitDatas(contact, products)
+    console.log("ok")
+    // submitDatas(contact, products)
   }
   else {
     if (errorsCount == 1) {
