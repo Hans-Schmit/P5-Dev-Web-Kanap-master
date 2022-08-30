@@ -8,7 +8,7 @@ const start = () => {
             insertIntoHtml(product)
         })
         .catch(err => {
-            console.log(`An error has occured : ${err}`)
+            alert(`Une erreur est survenue : ${err}`)
         })
 }
 

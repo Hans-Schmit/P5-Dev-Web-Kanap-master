@@ -14,14 +14,14 @@ const start = async () => {
           return (data)
         })
         .catch(err => {
-          console.error(`An error has occured : ${err}`)
+          alert(`Une erreur est survenue : ${err}`)
         })
       let datas = loopThroughCart()
       addToPage(datas)
       startListener()
     }
     catch (err) {
-      console.log(err)
+      alert(`Une erreur est survenue : ${err}`)
     }
   }
   else {
@@ -271,10 +271,10 @@ const checkAndSubmit = (inputList) => {
   }
   else {
     if (errorsCount == 1) {
-      alert("Error an input is incorrect")
+      alert("Erreur un champ est incorrect")
     }
     else {
-      alert(`Error ${errorsCount} inputs are incorrect`)
+      alert(`Erreur ${errorsCount} champs sont incorrects`)
     }
   }
 }
@@ -300,7 +300,7 @@ const submitDatas = (contact, products) => {
       redirectToConfirmation(response.orderId)
     })
     .catch(err => {
-      console.log(`An error has occured : ${err}`)
+      alert(`Une erreur est survenue : ${err}`)
     })
 
 
