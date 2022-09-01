@@ -212,8 +212,7 @@ const testInput = (theElement) => {
 
   switch (ref) {
     case "address":
-      regexChoice = /^[a-zA-Z0-9 ,.'-]{3,}$/
-      // regexChoice = /^[0-9]*[A-Z\u00C0-\u00D6\u00D8-\u00DE][\\s\'\-]?([a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[\\s\'\-]?)*[a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+$/
+      regexChoice = /^[0-9]*[ -]?[A-Z\u00C0-\u00D6\u00D8-\u00DE][ '-]?([a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[ '-]?)*[a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+$/
       break
     case "email":
       regexChoice = /^[a-zA-Z0-9\.%\+-_]{1,64}@([a-zA-Z0-9-_]{1,63}\.){1,125}[a-zA-Z]{2,63}$/
@@ -242,33 +241,37 @@ const checkAndSubmit = (inputList) => {
   let checkValue = true
   let contact = {}
   let errorsCount = 0
+  if (getCart().length != 0) {
+    inputList.forEach(input => {
+      if (testInput(input)) {
+        let attributName = input.getAttribute("id")
+        contact[attributName] = input.value
+      }
+      else {
+        checkValue = false
+        errorsCount += 1
+      }
+    })
 
-  inputList.forEach(input => {
-    if (testInput(input)) {
-      let attributName = input.getAttribute("id")
-      contact[attributName] = input.value
+    if (checkValue) {
+      cart = getCart()
+      let products = []
+      cart.forEach(product => {
+        products.push(product.id)
+      })
+      submitDatas(contact, products)
     }
     else {
-      checkValue = false
-      errorsCount += 1
+      if (errorsCount == 1) {
+        alert("Erreur un champ est invalide")
+      }
+      else {
+        alert(`Erreur ${errorsCount} champs sont invalides`)
+      }
     }
-  })
-
-  if (checkValue) {
-    cart = getCart()
-    let products = []
-    cart.forEach(product => {
-      products.push(product.id)
-    })
-    submitDatas(contact, products)
   }
   else {
-    if (errorsCount == 1) {
-      alert("Erreur un champ est invalide")
-    }
-    else {
-      alert(`Erreur ${errorsCount} champs sont invalides`)
-    }
+    alert("Panier vide !")
   }
 }
 
@@ -289,14 +292,12 @@ const submitDatas = (contact, products) => {
   })
     .then(res => res.json())
     .then(response => {
-      // deletCart()
+      deletCart()
       redirectToConfirmation(response.orderId)
     })
     .catch(err => {
       alert(`Une erreur est survenue : ${err}`)
     })
-
-
 }
 
 /**
