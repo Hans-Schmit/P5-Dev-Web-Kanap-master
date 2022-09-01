@@ -13,19 +13,19 @@ const start = async () => {
         .then(data => {
           return (data)
         })
-        .catch(err => {
-          alert(`Une erreur est survenue : ${err}`)
-        })
+      // .catch(err => {
+      //   document.querySelector("#cart__items").textContent = `Une erreur est survenue : ${err}`
+      // })
       let datas = loopThroughCart()
       addToPage(datas)
       startListener()
     }
     catch (err) {
-      alert(`Une erreur est survenue : ${err}`)
+      document.querySelector("#cart__items").textContent = `Une erreur est survenue : ${err}`
     }
   }
   else {
-    alert("Panier vide !")
+    document.querySelector("#cart__items").textContent = "Panier vide !"
   }
 
 }
@@ -99,8 +99,8 @@ const loopThroughCart = () => {
  */
 const addToPage = (datas) => {
   document.querySelector("#cart__items").innerHTML = datas.htmlCode
-  document.querySelector("#totalQuantity").innerText = datas.totalArticles.toString()
-  document.querySelector("#totalPrice").innerText = datas.totalPrice.toString()
+  document.querySelector("#totalQuantity").textContent = datas.totalArticles.toString()
+  document.querySelector("#totalPrice").textContent = datas.totalPrice.toString()
 }
 
 /**
@@ -173,9 +173,9 @@ const newQuantity = (theElement) => {
     cart[cart.findIndex(checking = (product) => { return Boolean(product.id == prodId && product.color == prodColor) })].quantity = newQuantity
     updateCart(cart)
 
-    theElement.previousElementSibling.innerText = `Qté : ${newQuantity}`
-    document.querySelector("#totalQuantity").innerText -= modifiedQuantity
-    document.querySelector("#totalPrice").innerText -= (modifiedQuantity * productPrice)
+    theElement.previousElementSibling.textContent = `Qté : ${newQuantity}`
+    document.querySelector("#totalQuantity").textContent -= modifiedQuantity
+    document.querySelector("#totalPrice").textContent -= (modifiedQuantity * productPrice)
   }
   else {
     alert("Veuillez selectionner une quantité (nombre entier) comprise entre 1 et 100 et différente de la quantité préexistante")
@@ -196,8 +196,8 @@ const deletItem = (theElement) => {
   cart.splice(cart.findIndex(checking = (product) => { return Boolean(product.id == prodId && product.color == prodColor) }), 1)
   updateCart(cart)
   theElement.closest(".cart__item").remove()
-  document.querySelector("#totalQuantity").innerText -= deletedQuantity
-  document.querySelector("#totalPrice").innerText -= (deletedQuantity * deletedPrice)
+  document.querySelector("#totalQuantity").textContent -= deletedQuantity
+  document.querySelector("#totalPrice").textContent -= (deletedQuantity * deletedPrice)
 }
 
 /**
@@ -211,32 +211,25 @@ const testInput = (theElement) => {
   let regexChoice = ""
 
   switch (ref) {
-    case "firstName":
-    case "lastName":
-    case "city":
-      regexChoice = /^[A-Za-z '-]+$/
-      // regexChoice = /^(([A-Za-z]+[\-\']?)*([A-Za-z]+)?\s)+([A-Za-z]+[\-\']?)*([A-Za-z]+)?$/
-      // regexChoice = /^[A-Z\u00C0-\u00D6\u00D8-\u00DE][ '-]?([a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[ '-]?)*[a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\]+$/
-      break
     case "address":
-      regexChoice = /^[a-zA-Z0-9\s,.'-]{3,}$/
-      // regexChoice = /^[0-9]*[A-Z\u00C0-\u00D6\u00D8-\u00DE][\\s\'\-]?([a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[\\s\'\-]?)*[a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\]+$/
+      regexChoice = /^[a-zA-Z0-9 ,.'-]{3,}$/
+      // regexChoice = /^[0-9]*[A-Z\u00C0-\u00D6\u00D8-\u00DE][\\s\'\-]?([a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[\\s\'\-]?)*[a-zA-Z0-9\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+$/
       break
     case "email":
       regexChoice = /^[a-zA-Z0-9\.%\+-_]{1,64}@([a-zA-Z0-9-_]{1,63}\.){1,125}[a-zA-Z]{2,63}$/
       break
     default:
-      console.log("error on testInput element")
+      regexChoice = /^[A-Z\u00C0-\u00D6\u00D8-\u00DE][ '-]?([a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+[ '-]?)*[a-zA-Z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]+$/
   }
 
   const theRegex = regexChoice
 
   if (theRegex.test(input)) {
-    theElement.nextElementSibling.innerText = "Ok"
+    theElement.nextElementSibling.textContent = "Ok"
     return true
   }
   else {
-    theElement.nextElementSibling.innerText = "Incorrect"
+    theElement.nextElementSibling.textContent = "Champ invalide"
     return false
   }
 }
@@ -267,15 +260,14 @@ const checkAndSubmit = (inputList) => {
     cart.forEach(product => {
       products.push(product.id)
     })
-    console.log("ok")
-    // submitDatas(contact, products)
+    submitDatas(contact, products)
   }
   else {
     if (errorsCount == 1) {
-      alert("Erreur un champ est incorrect")
+      alert("Erreur un champ est invalide")
     }
     else {
-      alert(`Erreur ${errorsCount} champs sont incorrects`)
+      alert(`Erreur ${errorsCount} champs sont invalides`)
     }
   }
 }
@@ -297,7 +289,7 @@ const submitDatas = (contact, products) => {
   })
     .then(res => res.json())
     .then(response => {
-      deletCart()
+      // deletCart()
       redirectToConfirmation(response.orderId)
     })
     .catch(err => {

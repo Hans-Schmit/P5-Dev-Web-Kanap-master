@@ -8,7 +8,7 @@ const start = () => {
             insertIntoHtml(product)
         })
         .catch(err => {
-            alert(`Une erreur est survenue : ${err}`)
+            document.querySelector("article").textContent = `Une erreur est survenue : ${err}`
         })
 }
 
@@ -32,9 +32,9 @@ let productId = url.searchParams.get("id")
 const insertIntoHtml = (product) => {
     document.title = product.name
     document.querySelector(".item__img").innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}">`
-    document.querySelector("#title").innerText = product.name
-    document.querySelector("#price").innerText = product.price
-    document.querySelector("#description").innerText = product.description
+    document.querySelector("#title").textContent = product.name
+    document.querySelector("#price").textContent = product.price
+    document.querySelector("#description").textContent = product.description
     document.querySelector("#colors").insertAdjacentHTML('beforeend', product.colors.map(color => `<option value="${color}">${color}</option>`).join(''))
 
     startListener()

@@ -8,7 +8,7 @@ const start = () => {
             productsBrowse(data)
         })
         .catch(err => {
-            document.querySelector("#items").innerText = `Une erreur est survenue : ${err}`
+            document.querySelector("#items").textContent = `Une erreur est survenue : ${err}`
         })
 }
 
