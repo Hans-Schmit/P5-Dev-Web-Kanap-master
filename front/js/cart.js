@@ -13,9 +13,6 @@ const start = async () => {
         .then(data => {
           return (data)
         })
-      // .catch(err => {
-      //   document.querySelector("#cart__items").textContent = `Une erreur est survenue : ${err}`
-      // })
       let datas = loopThroughCart()
       addToPage(datas)
       startListener()
