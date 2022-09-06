@@ -61,10 +61,26 @@ const addProduct = () => {
             }
             else {
                 addProductToCart(addedProduct)
+                confirmCartAddition(quantity, color)
             }
         }
     }
 }
+
+/**
+ * getCart - return the cart from the localStorage
+ * @returns 
+ */
+const getCart = () => JSON.parse(localStorage.cart)
+
+/**
+ * updateCart - update the localStorage cart with a new cart
+ * @param {*} cart 
+ */
+const updateCart = (cart) => {
+    localStorage.cart = JSON.stringify(cart)
+}
+
 /**
  * checkColor - check if a color is selected
  * @param {*} color 
@@ -105,10 +121,24 @@ const checkQuantity = (quantity) => {
 const checkIfCartExist = () => {
     let cartExist = true
     if (localStorage.cart == null) {
-        localStorage.cart = JSON.stringify([])
+        updateCart([])
         cartExist = false
     }
     return cartExist
+}
+
+/**
+ * confirmCartAddition - display an alert to confirm the addition of the product to the cart
+ * @param {*} quantity 
+ * @param {*} color 
+ */
+const confirmCartAddition = (quantity, color) => {
+    if (quantity == 1) {
+        alert(`1 Kanap ${color} a été ajouté au panier`)
+    }
+    else {
+        alert(`${quantity} Kanaps ${color} ont été ajoutés au panier`)
+    }
 }
 
 /**
@@ -116,33 +146,34 @@ const checkIfCartExist = () => {
  * @param {*} product 
  */
 const checkCartForProduct = (product) => {
-    let productNotAdded = true
+    let productAdded = false
+    let overMaxQuantity = false
 
-    let tempCheckCart = JSON.parse(localStorage.cart)
+    let tempCheckCart = getCart()
     tempCheckCart.forEach(ref => {
         if (product.id == ref.id && product.color == ref.color) {
             if ((ref.quantity + product.quantity) <= 100) {
                 ref.quantity += product.quantity
-                if (product.quantity == 1) {
-                    alert(`1 Kanap ${product.color} a été ajouté au panier`)
-                }
-                else {
-                    alert(`${product.quantity} Kanaps ${product.color} ont été ajoutés au panier`)
-                }
             }
             else {
-                alert("Quantité maximum atteinte pour cet article (100 exemplaires)")
                 ref.quantity = 100
+                overMaxQuantity = true
             }
-            productNotAdded = false
+            updateCart(tempCheckCart)
+            productAdded = true
         }
     })
 
-    if (productNotAdded) {
+    if (!productAdded) {
         addProductToCart(product)
     }
+
+    if (overMaxQuantity) {
+        alert("Quantité maximum atteinte pour cet article (100 exemplaires)")
+
+    }
     else {
-        localStorage.cart = JSON.stringify(tempCheckCart)
+        confirmCartAddition(product.quantity, product.color)
     }
 }
 
@@ -151,15 +182,9 @@ const checkCartForProduct = (product) => {
  * @param {*} product 
  */
 const addProductToCart = (product) => {
-    let tempAddCart = JSON.parse(localStorage.cart)
+    let tempAddCart = getCart()
     tempAddCart.push(product)
-    localStorage.cart = JSON.stringify(tempAddCart)
-    if (product.quantity == 1) {
-        alert(`1 Kanap ${product.color} a été ajouté au panier`)
-    }
-    else {
-        alert(`${product.quantity} Kanaps ${product.color} ont été ajoutés au panier`)
-    }
+    updateCart(tempAddCart)
 }
 
 // Wait for DOM release
