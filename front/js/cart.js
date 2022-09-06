@@ -153,6 +153,16 @@ const startListener = () => {
 }
 
 /**
+ * updateTotals - update the totals quantity and price displayed in the page
+ * @param {*} quantity 
+ * @param {*} price 
+ */
+const updateTotals = (quantity, price) => {
+  document.querySelector("#totalQuantity").textContent -= quantity
+  document.querySelector("#totalPrice").textContent -= (quantity * price)
+}
+
+/**
  * newQuantity - check if the quantity is valid then modifiy the cart and the page
  * @param {*} theElement
  */
@@ -171,8 +181,7 @@ const newQuantity = (theElement) => {
     updateCart(cart)
 
     theElement.previousElementSibling.textContent = `Qté : ${newQuantity}`
-    document.querySelector("#totalQuantity").textContent -= modifiedQuantity
-    document.querySelector("#totalPrice").textContent -= (modifiedQuantity * productPrice)
+    updateTotals(modifiedQuantity, productPrice)
   }
   else {
     alert("Veuillez selectionner une quantité (nombre entier) comprise entre 1 et 100 et différente de la quantité préexistante")
@@ -193,8 +202,7 @@ const deletItem = (theElement) => {
   cart.splice(cart.findIndex(checking = (product) => { return Boolean(product.id == prodId && product.color == prodColor) }), 1)
   updateCart(cart)
   theElement.closest(".cart__item").remove()
-  document.querySelector("#totalQuantity").textContent -= deletedQuantity
-  document.querySelector("#totalPrice").textContent -= (deletedQuantity * deletedPrice)
+  updateTotals(deletedQuantity, deletedPrice)
 }
 
 /**
