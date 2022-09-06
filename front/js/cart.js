@@ -95,7 +95,7 @@ const loopThroughCart = () => {
  * @param {*} datas 
  */
 const addToPage = (datas) => {
-  document.querySelector("#cart__items").innerHTML = datas.htmlCode
+  document.querySelector("#cart__items").insertAdjacentHTML('afterbegin', datas.htmlCode)
   document.querySelector("#totalQuantity").textContent = datas.totalArticles.toString()
   document.querySelector("#totalPrice").textContent = datas.totalPrice.toString()
 }

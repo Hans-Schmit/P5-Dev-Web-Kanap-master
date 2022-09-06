@@ -31,7 +31,7 @@ let productId = url.searchParams.get("id")
  */
 const insertIntoHtml = (product) => {
     document.title = product.name
-    document.querySelector(".item__img").innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}">`
+    document.querySelector(".item__img").insertAdjacentHTML('afterbegin', `<img src="${product.imageUrl}" alt="${product.altTxt}">`)
     document.querySelector("#title").textContent = product.name
     document.querySelector("#price").textContent = product.price
     document.querySelector("#description").textContent = product.description
